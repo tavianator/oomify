@@ -54,7 +54,7 @@ install:
 	$(INSTALL) -m755 liboomify.so $(DESTDIR)$(MANDIR)/lib/liboomify.so
 
 uninstall:
-	$(RM) $(DESTDIR)$(PREFIX)/bin/bfs
-	$(RM) $(DESTDIR)$(MANDIR)/man1/bfs.1
+	$(RM) $(DESTDIR)$(PREFIX)/bin/oomify
+	$(RM) $(DESTDIR)$(MANDIR)/lib/liboomify.so
 
 .PHONY: clean install uninstall
