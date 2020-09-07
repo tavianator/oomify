@@ -5,6 +5,45 @@ A utility for injecting memory allocation failures.
 
 Error handling is notoriously hard to test, especially for C code.
 OOMify helps by causing `malloc()` and related functions to fail in a controlled way, with the help of `LD_PRELOAD`.
+Currently, OOMify targets Linux systems with glibc, but it could be extended to others.
+
+
+Installation
+------------
+
+It is easiest to use OOMify by building and installing it system-wide:
+
+    $ make
+    $ sudo make install
+    $ oomify ...
+
+To use it without installing it, you'll need to set `LD_LIBRARY_PATH` so the injected library can be found:
+
+    $ make
+    $ export LD_LIBRARY_PATH=$PWD
+    $ ./oomify ...
+
+
+Usage
+-----
+
+    oomify [-a|-n N] [-f] [-s] [-v] [--] PROGRAM [ARGS...]
+
+      -a
+          Try failing all allocations the program preforms (default)
+      -n N
+          Run the program once, failing the Nth allocation
+      -d
+          Do a dry run, without failing any allocations
+      -f
+          Fail all subsequent allocation after the first one fails
+      -s
+          Raise SIGSTOP on failing allocations, to allow attaching a debugger
+      -v
+          Be verbose
+      -q
+          Be quiet
+
 In its default mode of operation, OOMify
 
 1. Runs the program once to count the number of allocations it performs:

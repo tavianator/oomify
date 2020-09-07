@@ -166,7 +166,22 @@ static int parse_int(const char *str, size_t *n) {
 }
 
 static void usage(void) {
-	fprintf(stderr, "Usage: oomify [-a|-n NTH] [-f] [-s] [-v] [--] PROGRAM [ARGS...]\n");
+	fprintf(stderr, "Usage: oomify [-a|-n N|-d] [-f] [-s] [-v|-q] [--] PROGRAM [ARGS...]\n\n");
+
+        fprintf(stderr, "      -a\n");
+        fprintf(stderr, "          Try failing all allocations the program preforms (default);\n");
+        fprintf(stderr, "      -n N\n");
+        fprintf(stderr, "          Run the program once, failing the Nth allocation\n");
+        fprintf(stderr, "      -d\n");
+        fprintf(stderr, "          Do a dry run, without failing any allocations\n");
+        fprintf(stderr, "      -f\n");
+        fprintf(stderr, "          Fail all subsequent allocation after the first one fails\n");
+        fprintf(stderr, "      -s\n");
+        fprintf(stderr, "          Raise SIGSTOP on failing allocations, to allow attaching a debugger\n");
+        fprintf(stderr, "      -v\n");
+        fprintf(stderr, "          Be verbose\n");
+        fprintf(stderr, "      -q\n");
+        fprintf(stderr, "          Be quiet\n");
 }
 
 int main(int argc, char *argv[]) {
