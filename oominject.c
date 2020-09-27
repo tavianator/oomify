@@ -11,6 +11,9 @@ static void init_oominject(void) {
 	if (read(OOMCTL_FILENO, &ctl, sizeof(ctl)) != sizeof(ctl)) {
 		abort();
 	}
+
+	// Don't apply oomify to any exec'd children
+	unsetenv("LD_PRELOAD");
 }
 
 static struct oomstat stats;
