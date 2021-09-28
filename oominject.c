@@ -9,6 +9,8 @@ static struct oomctl ctl;
 __attribute__((constructor))
 static void init_oominject(void) {
 	if (read(OOMCTL_FILENO, &ctl, sizeof(ctl)) != sizeof(ctl)) {
+		static const char message[] = "liboomify: Failed to read oomctl\n";
+		write(STDERR_FILENO, message, sizeof(message) - 1);
 		abort();
 	}
 
@@ -22,6 +24,8 @@ __attribute__((destructor))
 static void fini_oominject(void) {
 	struct oomstat copy = stats;
 	if (write(OOMSTAT_FILENO, &copy, sizeof(copy)) != sizeof(copy)) {
+		static const char message[] = "liboomify: Failed to write oomstat\n";
+		write(STDERR_FILENO, message, sizeof(message) - 1);
 		abort();
 	}
 }
