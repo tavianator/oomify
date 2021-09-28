@@ -169,7 +169,7 @@ static void usage(void) {
 	fprintf(stderr, "Usage: oomify [-a|-n N|-d] [-f] [-s] [-v|-q] [--] PROGRAM [ARGS...]\n\n");
 
         fprintf(stderr, "      -a\n");
-        fprintf(stderr, "          Try failing all allocations the program preforms (default);\n");
+        fprintf(stderr, "          Try failing all allocations the program performs (default)\n");
         fprintf(stderr, "      -n N\n");
         fprintf(stderr, "          Run the program once, failing the Nth allocation\n");
         fprintf(stderr, "      -d\n");
