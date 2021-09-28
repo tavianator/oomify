@@ -27,7 +27,7 @@ To use it without installing it, you'll need to set `LD_LIBRARY_PATH` so the inj
 Usage
 -----
 
-    oomify [-a|-n N] [-f] [-s] [-v] [--] PROGRAM [ARGS...]
+    oomify [-a|-n N] [-f] [-s] [-v|-q] [--] PROGRAM [ARGS...]
 
       -a
           Try failing all allocations the program preforms (default)
