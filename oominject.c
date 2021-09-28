@@ -1,5 +1,6 @@
 #include "oomify.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,6 +13,13 @@ static void init_oominject(void) {
 		static const char message[] = "liboomify: Failed to read oomctl\n";
 		write(STDERR_FILENO, message, sizeof(message) - 1);
 		abort();
+	}
+	close(OOMCTL_FILENO);
+
+	// Don't pass OOMSTAT_FILENO to exec'd children
+	int flags = fcntl(OOMSTAT_FILENO, F_GETFD);
+	if (flags >= 0 && !(flags & FD_CLOEXEC)) {
+		fcntl(OOMSTAT_FILENO, F_SETFD, flags | FD_CLOEXEC);
 	}
 
 	// Don't apply oomify to any exec'd children
