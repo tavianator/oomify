@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -39,7 +40,7 @@ static void fini_oominject(void) {
 }
 
 static bool should_inject(void) {
-	size_t n = __atomic_fetch_add(&stats.total, 1, __ATOMIC_SEQ_CST);
+	size_t n = atomic_fetch_add_explicit(&stats.total, 1, memory_order_seq_cst);
 
 	if (n == ctl.inject_at) {
 		if (ctl.stop) {
@@ -59,7 +60,7 @@ void *__libc_realloc(void *ptr, size_t size);
 void __libc_free(void* ptr);
 
 void *malloc(size_t size) {
-	__atomic_fetch_add(&stats.malloc, 1, __ATOMIC_RELAXED);
+	atomic_fetch_add_explicit(&stats.malloc, 1, memory_order_relaxed);
 
 	if (should_inject()) {
 		errno = ENOMEM;
@@ -70,7 +71,7 @@ void *malloc(size_t size) {
 }
 
 void *calloc(size_t nmemb, size_t size) {
-	__atomic_fetch_add(&stats.calloc, 1, __ATOMIC_RELAXED);
+	atomic_fetch_add_explicit(&stats.calloc, 1, memory_order_relaxed);
 
 	if (should_inject()) {
 		errno = ENOMEM;
@@ -81,7 +82,7 @@ void *calloc(size_t nmemb, size_t size) {
 }
 
 void *realloc(void *ptr, size_t size) {
-	__atomic_fetch_add(&stats.realloc, 1, __ATOMIC_RELAXED);
+	atomic_fetch_add_explicit(&stats.realloc, 1, memory_order_relaxed);
 
 	if (should_inject()) {
 		errno = ENOMEM;
@@ -92,7 +93,7 @@ void *realloc(void *ptr, size_t size) {
 }
 
 void free(void *ptr) {
-	__atomic_fetch_add(&stats.free, 1, __ATOMIC_RELAXED);
+	atomic_fetch_add_explicit(&stats.free, 1, memory_order_relaxed);
 
 	__libc_free(ptr);
 }

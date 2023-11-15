@@ -17,6 +17,7 @@
 #ifndef OOMIFY_H
 #define OOMIFY_H
 
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -41,15 +42,15 @@ struct oomctl {
  */
 struct oomstat {
 	/** The total number of allocations that occured. */
-	size_t total;
+	atomic_size_t total;
 	/** The number of malloc() calls. */
-	size_t malloc;
+	atomic_size_t malloc;
 	/** The number of calloc() calls. */
-	size_t calloc;
+	atomic_size_t calloc;
 	/** The number of realloc() calls. */
-	size_t realloc;
+	atomic_size_t realloc;
 	/** The number of free() calls. */
-	size_t free;
+	atomic_size_t free;
 };
 
 #endif // OOMIFY_H
