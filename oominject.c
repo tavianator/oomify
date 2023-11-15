@@ -1,6 +1,7 @@
 #include "oomify.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <malloc.h>
 #include <signal.h>
 #include <stdatomic.h>
 #include <stdlib.h>
@@ -39,15 +40,19 @@ static void fini_oominject(void) {
 	}
 }
 
-static bool should_inject(void) {
+static bool should_inject(atomic_size_t *stat) {
+	atomic_fetch_add_explicit(stat, 1, memory_order_relaxed);
+
 	size_t n = atomic_fetch_add_explicit(&stats.total, 1, memory_order_seq_cst);
 
 	if (n == ctl.inject_at) {
 		if (ctl.stop) {
 			raise(SIGSTOP);
 		}
+		errno = ENOMEM;
 		return true;
 	} else if (ctl.inject_after && n >= ctl.inject_at) {
+		errno = ENOMEM;
 		return true;
 	} else {
 		return false;
@@ -57,39 +62,68 @@ static bool should_inject(void) {
 void *__libc_malloc(size_t size);
 void *__libc_calloc(size_t nmemb, size_t size);
 void *__libc_realloc(void *ptr, size_t size);
+void *__libc_memalign(size_t align, size_t size);
 void __libc_free(void* ptr);
 
 void *malloc(size_t size) {
-	atomic_fetch_add_explicit(&stats.malloc, 1, memory_order_relaxed);
-
-	if (should_inject()) {
-		errno = ENOMEM;
+	if (should_inject(&stats.malloc)) {
 		return NULL;
-	} else {
-		return __libc_malloc(size);
 	}
+
+	return __libc_malloc(size);
 }
 
 void *calloc(size_t nmemb, size_t size) {
-	atomic_fetch_add_explicit(&stats.calloc, 1, memory_order_relaxed);
-
-	if (should_inject()) {
-		errno = ENOMEM;
+	if (should_inject(&stats.calloc)) {
 		return NULL;
-	} else {
-		return __libc_calloc(nmemb, size);
 	}
+
+	return __libc_calloc(nmemb, size);
 }
 
 void *realloc(void *ptr, size_t size) {
-	atomic_fetch_add_explicit(&stats.realloc, 1, memory_order_relaxed);
-
-	if (should_inject()) {
-		errno = ENOMEM;
+	if (should_inject(&stats.realloc)) {
 		return NULL;
-	} else {
-		return __libc_realloc(ptr, size);
 	}
+
+	return __libc_realloc(ptr, size);
+}
+
+void *aligned_alloc(size_t align, size_t size) {
+	if (should_inject(&stats.aligned_alloc)) {
+		return NULL;
+	}
+
+	return __libc_memalign(align, size);
+}
+
+int posix_memalign(void **memptr, size_t align, size_t size) {
+	// posix_memalign() doesn't modify errno
+	int saved = errno;
+
+	if (should_inject(&stats.posix_memalign)) {
+		errno = saved;
+		return ENOMEM;
+	}
+
+	void *ptr = __libc_memalign(align, size);
+	int error = errno;
+	errno = saved;
+
+	if (ptr) {
+		*memptr = ptr;
+		return 0;
+	} else {
+		return error;
+	}
+}
+
+void *memalign(size_t align, size_t size) {
+	if (should_inject(&stats.memalign)) {
+		return NULL;
+	}
+
+	return __libc_memalign(align, size);
 }
 
 void free(void *ptr) {

@@ -252,10 +252,13 @@ int main(int argc, char *argv[]) {
 			fprintf(stderr, "oomify: %s did %zu allocations\n", spawn_argv[0], stats.total);
 		}
 		if (verbose) {
-			fprintf(stderr, "\tmalloc:  %zu\n", stats.malloc);
-			fprintf(stderr, "\tcalloc:  %zu\n", stats.calloc);
-			fprintf(stderr, "\trealloc: %zu\n", stats.realloc);
-			fprintf(stderr, "\tfree:    %zu\n", stats.free);
+			fprintf(stderr, "\tmalloc:         %zu\n", stats.malloc);
+			fprintf(stderr, "\tcalloc:         %zu\n", stats.calloc);
+			fprintf(stderr, "\trealloc:        %zu\n", stats.realloc);
+			fprintf(stderr, "\taligned_alloc:  %zu\n", stats.aligned_alloc);
+			fprintf(stderr, "\tposix_memalign: %zu\n", stats.posix_memalign);
+			fprintf(stderr, "\tmemalign:       %zu\n", stats.memalign);
+			fprintf(stderr, "\tfree:           %zu\n", stats.free);
 		}
 	} else {
 		min = ctl.inject_at;
