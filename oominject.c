@@ -30,8 +30,13 @@ static void init_oominject(void) {
 
 static struct oomstat stats;
 
+// glibc hook to free its own private allocations
+void __libc_freeres(void);
+
 __attribute__((destructor))
 static void fini_oominject(void) {
+	__libc_freeres();
+
 	struct oomstat copy = stats;
 	if (write(OOMSTAT_FILENO, &copy, sizeof(copy)) != sizeof(copy)) {
 		static const char message[] = "liboomify: Failed to write oomstat\n";
