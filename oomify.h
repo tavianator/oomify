@@ -47,16 +47,20 @@ struct oomstat {
 	atomic_size_t malloc;
 	/** The number of calloc() calls. */
 	atomic_size_t calloc;
-	/** The number of realloc() calls. */
-	atomic_size_t realloc;
+	/** The number of realloc(ptr, size) calls. */
+	atomic_size_t realloc_ptr;
+	/** The number of realloc(NULL, size) calls. */
+	atomic_size_t realloc_null;
 	/** The number of aligned_alloc() calls. */
 	atomic_size_t aligned_alloc;
 	/** The number of posix_memalign() calls. */
 	atomic_size_t posix_memalign;
 	/** The number of memalign() calls. */
 	atomic_size_t memalign;
-	/** The number of free() calls. */
-	atomic_size_t free;
+	/** The number of free(ptr) calls. */
+	atomic_size_t free_ptr;
+	/** The number of free(NULL) calls. */
+	atomic_size_t free_null;
 };
 
 #endif // OOMIFY_H

@@ -87,7 +87,7 @@ void *calloc(size_t nmemb, size_t size) {
 }
 
 void *realloc(void *ptr, size_t size) {
-	if (should_inject(&stats.realloc)) {
+	if (should_inject(ptr ? &stats.realloc_ptr : &stats.realloc_null)) {
 		return NULL;
 	}
 
@@ -132,7 +132,7 @@ void *memalign(size_t align, size_t size) {
 }
 
 void free(void *ptr) {
-	atomic_fetch_add_explicit(&stats.free, 1, memory_order_relaxed);
+	atomic_fetch_add_explicit(ptr ? &stats.free_ptr : &stats.free_null, 1, memory_order_relaxed);
 
 	__libc_free(ptr);
 }

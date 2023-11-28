@@ -245,20 +245,46 @@ int main(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 
+		size_t total = stats.total;
+		size_t blocks = stats.malloc + stats.calloc + stats.realloc_null
+			+ stats.aligned_alloc + stats.posix_memalign + stats.memalign;
+		size_t leaks = blocks - stats.free_ptr;
+
 		min = 0;
-		max = dry_run ? 0 : stats.total;
+		max = dry_run ? 0 : total;
 
 		if (!quiet) {
-			fprintf(stderr, "oomify: %s did %zu allocations\n", spawn_argv[0], stats.total);
-		}
-		if (verbose) {
-			fprintf(stderr, "\tmalloc:         %zu\n", stats.malloc);
-			fprintf(stderr, "\tcalloc:         %zu\n", stats.calloc);
-			fprintf(stderr, "\trealloc:        %zu\n", stats.realloc);
-			fprintf(stderr, "\taligned_alloc:  %zu\n", stats.aligned_alloc);
-			fprintf(stderr, "\tposix_memalign: %zu\n", stats.posix_memalign);
-			fprintf(stderr, "\tmemalign:       %zu\n", stats.memalign);
-			fprintf(stderr, "\tfree:           %zu\n", stats.free);
+			fprintf(stderr, "oomify --");
+			for (size_t i = 0; spawn_argv[i]; ++i) {
+				fprintf(stderr, " %s", spawn_argv[i]);
+			}
+			fprintf(stderr, "\n");
+
+			if (verbose) {
+				fprintf(stderr, "    ------------------------------\n");
+				fprintf(stderr, "        malloc():         %8zu\n", stats.malloc);
+				fprintf(stderr, "      + calloc():         %8zu\n", stats.calloc);
+				fprintf(stderr, "      + realloc(NULL):    %8zu\n", stats.realloc_null);
+				fprintf(stderr, "      + aligned_alloc():  %8zu\n", stats.aligned_alloc);
+				fprintf(stderr, "      + posix_memalign(): %8zu\n", stats.posix_memalign);
+				fprintf(stderr, "      + memalign():       %8zu\n", stats.memalign);
+				fprintf(stderr, "    ------------------------------\n");
+			}
+			fprintf(stderr, "    allocated blocks:     %8zu\n", blocks);
+
+			if (verbose) {
+				fprintf(stderr, "    ------------------------------\n");
+				fprintf(stderr, "      + realloc(ptr):     %8zu\n", stats.realloc_ptr);
+				fprintf(stderr, "    ------------------------------\n");
+			}
+			fprintf(stderr, "    fallible allocations: %8zu\n", total);
+
+			if (verbose) {
+				fprintf(stderr, "    ------------------------------\n");
+				fprintf(stderr, "      - free(ptr):        %8zu // free(NULL): %zu\n", stats.free_ptr, stats.free_null);
+				fprintf(stderr, "    ------------------------------\n");
+ 			}
+			fprintf(stderr, "    leaks:                %8zu\n", leaks);
 		}
 	} else {
 		min = ctl.inject_at;
